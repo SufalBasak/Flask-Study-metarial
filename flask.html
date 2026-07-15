@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description"
+        content="Beginner-friendly Flask study material covering setup, routes, templates, forms, PostgreSQL, SQLAlchemy, CRUD, and a complete basic project." />
+    <title>Flask + PostgreSQL Study Book</title>
+    <style>
+        :root {
+            --bg: #07111f;
+            --panel: #0d1b2d;
+            --panel-2: #11243b;
+            --text: #e8f0fa;
+            --muted: #a9b8c9;
+            --accent: #50c878;
+            --accent-2: #66b3ff;
+            --warning: #ffcc66;
+            --danger: #ff7b7b;
+            --border: rgba(255, 255, 255, .1);
+            --code: #050b13;
+            --shadow: 0 18px 45px rgba(0, 0, 0, .28);
+        }
+
+        body.light {
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --panel-2: #edf3f9;
+            --text: #142033;
+            --muted: #526276;
+            --border: rgba(20, 32, 51, .12);
+            --code: #101826;
+            --shadow: 0 15px 38px rgba(33, 51, 79, .12);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            margin: 0;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: radial-gradient(circle at top right, rgba(80, 200, 120, .09), transparent 27%), var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        a {
+            color: var(--accent-2);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: 100vh;
+        }
+
+        aside {
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 24px 18px;
+            background: rgba(7, 17, 31, .94);
+            border-right: 1px solid var(--border);
+            backdrop-filter: blur(14px);
+            z-index: 10;
+        }
+
+        body.light aside {
+            background: rgba(255, 255, 255, .94);
+        }
+
+        .brand {
+            padding: 8px 10px 20px;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .brand h1 {
+            font-size: 1.1rem;
+            margin: 0 0 6px;
+        }
+
+        .brand p {
+            margin: 0;
+            color: var(--muted);
+            font-size: .88rem;
+        }
+
+        .nav-title {
+            font-size: .72rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin: 18px 10px 8px;
+        }
+
+        nav a {
+            display: block;
+            padding: 8px 10px;
+            border-radius: 10px;
+            color: var(--muted);
+            font-size: .92rem;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background: var(--panel-2);
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .sidebar-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 18px;
+        }
+
+        button {
+            border: 1px solid var(--border);
+            color: var(--text);
+            background: var(--panel-2);
+            border-radius: 10px;
+            padding: 9px 11px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+        }
+
+        main {
+            min-width: 0;
+        }
+
+        .hero {
+            padding: 72px clamp(24px, 6vw, 88px) 56px;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(145deg, rgba(102, 179, 255, .08), rgba(80, 200, 120, .06));
+        }
+
+        .badge {
+            display: inline-flex;
+            gap: 8px;
+            align-items: center;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(80, 200, 120, .12);
+            color: var(--accent);
+            border: 1px solid rgba(80, 200, 120, .28);
+            font-weight: 800;
+            font-size: .83rem;
+        }
+
+        .hero h2 {
+            max-width: 900px;
+            font-size: clamp(2.25rem, 6vw, 4.7rem);
+            line-height: 1.04;
+            margin: 20px 0;
+            letter-spacing: -.045em;
+        }
+
+        .hero p {
+            max-width: 850px;
+            color: var(--muted);
+            font-size: 1.12rem;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 32px;
+        }
+
+        .stat {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .stat strong {
+            display: block;
+            font-size: 1.3rem;
+            color: var(--accent);
+        }
+
+        .stat span {
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        .content {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 30px clamp(20px, 5vw, 70px) 90px;
+        }
+
+        section {
+            scroll-margin-top: 20px;
+            margin: 28px 0;
+            padding: 30px;
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        h2.section-title {
+            margin-top: 0;
+            font-size: 1.8rem;
+            letter-spacing: -.02em;
+        }
+
+        h3 {
+            margin-top: 30px;
+        }
+
+        p,
+        li {
+            color: var(--muted);
+        }
+
+        strong {
+            color: var(--text);
+        }
+
+        .note,
+        .warning,
+        .success {
+            padding: 14px 16px;
+            border-radius: 13px;
+            margin: 18px 0;
+            border-left: 4px solid;
+        }
+
+        .note {
+            background: rgba(102, 179, 255, .08);
+            border-color: var(--accent-2);
+        }
+
+        .warning {
+            background: rgba(255, 204, 102, .09);
+            border-color: var(--warning);
+        }
+
+        .success {
+            background: rgba(80, 200, 120, .09);
+            border-color: var(--accent);
+        }
+
+        .code-wrap {
+            position: relative;
+            margin: 16px 0;
+        }
+
+        pre {
+            margin: 0;
+            overflow: auto;
+            background: var(--code);
+            color: #dce9f7;
+            border: 1px solid rgba(255, 255, 255, .09);
+            border-radius: 14px;
+            padding: 20px;
+            font-size: .9rem;
+            line-height: 1.6;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        }
+
+        :not(pre)>code {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            border-radius: 6px;
+            color: var(--accent-2);
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 9px;
+            right: 9px;
+            padding: 6px 9px;
+            font-size: .76rem;
+            background: #172338;
+            color: #fff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            overflow: hidden;
+            border-radius: 13px;
+            margin: 18px 0;
+        }
+
+        th,
+        td {
+            padding: 12px;
+            border: 1px solid var(--border);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            background: var(--panel-2);
+            color: var(--text);
+        }
+
+        td {
+            color: var(--muted);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--panel-2);
+            border: 1px solid var(--border);
+            border-radius: 15px;
+            padding: 18px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .tree {
+            white-space: pre;
+            overflow-x: auto;
+            background: var(--code);
+            color: #dce9f7;
+            border-radius: 14px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, .09);
+        }
+
+        .checklist li {
+            margin-bottom: 7px;
+        }
+
+        .footer {
+            text-align: center;
+            color: var(--muted);
+            padding: 34px;
+            border-top: 1px solid var(--border);
+        }
+
+        body.is-loading {
+            overflow: hidden;
+        }
+
+        .page-loader {
+            position: fixed;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            background:
+                radial-gradient(circle at 32% 22%, rgba(102, 179, 255, .16), transparent 26%),
+                radial-gradient(circle at 68% 72%, rgba(80, 200, 120, .13), transparent 28%),
+                var(--bg);
+            z-index: 9999;
+            transition: opacity .45s ease, visibility .45s ease;
+        }
+
+        .page-loader.is-hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-card {
+            width: min(360px, 100%);
+            display: grid;
+            justify-items: center;
+            gap: 18px;
+            padding: 32px 28px;
+            background: color-mix(in srgb, var(--panel) 88%, transparent);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(18px);
+            text-align: center;
+        }
+
+        .loader-mark {
+            position: relative;
+            width: 74px;
+            height: 74px;
+            display: grid;
+            place-items: center;
+        }
+
+        .loader-mark::before,
+        .loader-mark::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 3px solid transparent;
+        }
+
+        .loader-mark::before {
+            border-top-color: var(--accent);
+            border-right-color: rgba(80, 200, 120, .35);
+            animation: loader-spin 1s linear infinite;
+        }
+
+        .loader-mark::after {
+            inset: 10px;
+            border-bottom-color: var(--accent-2);
+            border-left-color: rgba(102, 179, 255, .35);
+            animation: loader-spin 1.4s linear infinite reverse;
+        }
+
+        .loader-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-2));
+            box-shadow: 0 0 24px rgba(80, 200, 120, .45);
+        }
+
+        .loader-title {
+            margin: 0;
+            color: var(--text);
+            font-size: 1rem;
+            font-weight: 800;
+        }
+
+        .loader-text {
+            margin: -10px 0 0;
+            color: var(--muted);
+            font-size: .88rem;
+        }
+
+        .loader-progress {
+            width: 100%;
+            height: 4px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: var(--panel-2);
+        }
+
+        .loader-progress span {
+            display: block;
+            width: 42%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--accent), var(--accent-2));
+            animation: loader-progress 1.25s ease-in-out infinite;
+        }
+
+        @keyframes loader-spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes loader-progress {
+            0% {
+                transform: translateX(-120%);
+            }
+
+            100% {
+                transform: translateX(260%);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .loader-mark::before,
+            .loader-mark::after,
+            .loader-progress span {
+                animation: none;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            aside {
+                position: relative;
+                height: auto;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+
+            nav {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .hero-grid,
+            .grid-2 {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 580px) {
+
+            nav,
+            .hero-grid,
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 21px;
+            }
+
+            .hero {
+                padding-top: 45px;
+            }
+        }
+
+        @media print {
+
+            aside,
+            .copy-btn,
+            .sidebar-actions {
+                display: none !important;
+            }
+
+            .layout {
+                display: block;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            section {
+                box-shadow: none;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body class="is-loading">
+    <script>
+        if (localStorage.getItem('study-theme') === 'light') document.body.classList.add('light');
+    </script>
+    <div class="page-loader" id="pageLoader" role="status" aria-live="polite" aria-label="Loading study book">
+        <div class="loader-card">
+            <div class="loader-mark" aria-hidden="true">
+                <span class="loader-dot"></span>
+            </div>
+            <p class="loader-title">Loading Flask Study Book</p>
+            <p class="loader-text">Preparing your notes...</p>
+            <div class="loader-progress" aria-hidden="true"><span></span></div>
+        </div>
+    </div>
+    <div class="layout">
+        <aside>
+            <div class="brand">
+                <h1>🐍 Flask Study Book</h1>
+                <p>HTML • CSS • JavaScript • Flask • PostgreSQL</p>
+            </div>
+            <div class="nav-title">Chapters</div>
+            <nav id="nav">
+                <a href="#intro">1. Flask Introduction</a>
+                <a href="#setup">2. Setup & Installation</a>
+                <a href="#first-app">3. First Flask App</a>
+                <a href="#routes">4. Routes & URLs</a>
+                <a href="#templates">5. HTML Templates</a>
+                <a href="#static">6. CSS & JavaScript</a>
+                <a href="#forms">7. Forms & Requests</a>
+                <a href="#database">8. PostgreSQL Setup</a>
+                <a href="#sqlalchemy">9. SQLAlchemy Models</a>
+                <a href="#crud">10. CRUD Operations</a>
+                <a href="#project">11. Complete Project</a>
+                <a href="#run">12. Run the Project</a>
+                <a href="#errors">13. Common Errors</a>
+                <a href="#practice">14. Practice Tasks</a>
+            </nav>
+            <div class="sidebar-actions">
+                <button id="themeBtn">☀ Theme</button>
+                <button onclick="window.print()">🖨 Print</button>
+            </div>
+        </aside>
+
+        <main>
+            <header class="hero">
+                <span class="badge">Beginner → Basic Full-Stack Project</span>
+                <h2>Flask + PostgreSQL Complete Study Material</h2>
+                <p>Learn how a Python Flask backend connects with HTML, CSS, JavaScript and PostgreSQL. This book ends
+                    with a complete Student Management CRUD project.</p>
+                <div class="hero-grid">
+                    <div class="stat"><strong>14</strong><span>Study chapters</span></div>
+                    <div class="stat"><strong>CRUD</strong><span>Create, Read, Update, Delete</span></div>
+                    <div class="stat"><strong>PostgreSQL</strong><span>Real relational database</span></div>
+                    <div class="stat"><strong>1 Project</strong><span>Ready for practice</span></div>
+                </div>
+            </header>
+
+            <div class="content">
+                <section id="intro">
+                    <h2 class="section-title">1. What is Flask?</h2>
+                    <p><strong>Flask</strong> is a lightweight Python web framework used to create websites, REST APIs,
+                        dashboards and backend applications. Flask gives you the essential web features and allows you
+                        to select your own database and extensions.</p>
+                    <div class="grid-2">
+                        <div class="card">
+                            <h3>Frontend</h3>
+                            <p>HTML creates structure, CSS creates design, and JavaScript adds browser interaction.</p>
+                        </div>
+                        <div class="card">
+                            <h3>Backend</h3>
+                            <p>Flask receives requests, runs Python logic, communicates with the database and returns
+                                responses.</p>
+                        </div>
+                    </div>
+                    <h3>Application flow</h3>
+                    <div class="tree">Browser → Flask Route → Python Logic → PostgreSQL
+                        ← HTML / JSON Response ←</div>
+                </section>
+
+                <section id="setup">
+                    <h2 class="section-title">2. Environment Setup and Installation</h2>
+                    <h3>Step 1: Check Python</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>python --version
+pip --version</code></pre>
+                    </div>
+                    <h3>Step 2: Create a project folder</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>mkdir flask_student_app
+cd flask_student_app</code></pre>
+                    </div>
+                    <h3>Step 3: Create a virtual environment</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code># Windows
+python -m venv venv
+venv\Scripts\activate
+
+# macOS / Linux
+python3 -m venv venv
+source venv/bin/activate</code></pre>
+                    </div>
+                    <h3>Step 4: Install packages</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>pip install Flask Flask-SQLAlchemy psycopg2-binary python-dotenv</code></pre>
+                    </div>
+                    <div class="note"><strong>Why virtual environment?</strong> It keeps this project's Python libraries
+                        separate from other projects.</div>
+                </section>
+
+                <section id="first-app">
+                    <h2 class="section-title">3. Your First Flask Application</h2>
+                    <p>Create <code>app.py</code>:</p>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>from flask import Flask
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "Hello, Flask!"
+
+if __name__ == "__main__":
+    app.run(debug=True)</code></pre>
+                    </div>
+                    <h3>Explanation</h3>
+                    <table>
+                        <tr>
+                            <th>Code</th>
+                            <th>Meaning</th>
+                        </tr>
+                        <tr>
+                            <td><code>Flask(__name__)</code></td>
+                            <td>Creates the Flask application.</td>
+                        </tr>
+                        <tr>
+                            <td><code>@app.route("/")</code></td>
+                            <td>Connects the home URL to a Python function.</td>
+                        </tr>
+                        <tr>
+                            <td><code>return</code></td>
+                            <td>Sends a response to the browser.</td>
+                        </tr>
+                        <tr>
+                            <td><code>debug=True</code></td>
+                            <td>Automatically reloads during development and shows detailed errors.</td>
+                        </tr>
+                    </table>
+                    <div class="warning"><strong>Important:</strong> Do not use debug mode in production.</div>
+                </section>
+
+                <section id="routes">
+                    <h2 class="section-title">4. Routes, Dynamic URLs and HTTP Methods</h2>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>@app.route("/")
+def home():
+    return "Home Page"
+
+@app.route("/about")
+def about():
+    return "About Page"
+
+@app.route("/student/&lt;name&gt;")
+def student(name):
+    return f"Welcome, {name}"
+
+@app.route("/marks/&lt;int:score&gt;")
+def marks(score):
+    return {"score": score}</code></pre>
+                    </div>
+                    <h3>Main HTTP methods</h3>
+                    <table>
+                        <tr>
+                            <th>Method</th>
+                            <th>Purpose</th>
+                        </tr>
+                        <tr>
+                            <td>GET</td>
+                            <td>Read or display data.</td>
+                        </tr>
+                        <tr>
+                            <td>POST</td>
+                            <td>Create or submit data.</td>
+                        </tr>
+                        <tr>
+                            <td>PUT / PATCH</td>
+                            <td>Update data, commonly used in APIs.</td>
+                        </tr>
+                        <tr>
+                            <td>DELETE</td>
+                            <td>Delete data, commonly used in APIs.</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="templates">
+                    <h2 class="section-title">5. Connecting Flask with HTML Templates</h2>
+                    <p>Flask automatically looks for HTML files inside a folder named <code>templates</code>.</p>
+                    <h3>app.py</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    student_name = "Sufal"
+    skills = ["Python", "Flask", "PostgreSQL"]
+    return render_template(
+        "index.html",
+        name=student_name,
+        skills=skills
+    )</code></pre>
+                    </div>
+                    <h3>templates/index.html</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    &lt;title&gt;Flask Home&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;h1&gt;Welcome, {{ name }}&lt;/h1&gt;
+
+    &lt;ul&gt;
+        {% for skill in skills %}
+            &lt;li&gt;{{ skill }}&lt;/li&gt;
+        {% endfor %}
+    &lt;/ul&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+                    <div class="success"><strong>Jinja syntax:</strong> <code>{{ variable }}</code> prints data.
+                        <code>{% ... %}</code> runs template logic such as loops and conditions.</div>
+                </section>
+
+                <section id="static">
+                    <h2 class="section-title">6. Connecting CSS and JavaScript</h2>
+                    <p>Place CSS, JavaScript and images inside the <code>static</code> folder.</p>
+                    <h3>HTML links</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>&lt;link rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"&gt;
+
+&lt;script src="{{ url_for('static', filename='js/script.js') }}" defer&gt;&lt;/script&gt;</code></pre>
+                    </div>
+                    <h3>static/css/style.css</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background: #f4f7fb;
+    color: #1f2937;
+}
+
+.container {
+    width: min(900px, 92%);
+    margin: 40px auto;
+}</code></pre>
+                    </div>
+                    <h3>static/js/script.js</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>document.addEventListener("DOMContentLoaded", () =&gt; {
+    console.log("JavaScript connected successfully");
+});</code></pre>
+                    </div>
+                </section>
+
+                <section id="forms">
+                    <h2 class="section-title">7. Forms and Request Data</h2>
+                    <h3>HTML form</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>&lt;form action="{{ url_for('add_student') }}" method="POST"&gt;
+    &lt;input type="text" name="name" placeholder="Student name" required&gt;
+    &lt;input type="email" name="email" placeholder="Email" required&gt;
+    &lt;button type="submit"&gt;Add Student&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                    </div>
+                    <h3>Flask route</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>from flask import request, redirect, url_for
+
+@app.route("/students/add", methods=["POST"])
+def add_student():
+    name = request.form.get("name")
+    email = request.form.get("email")
+
+    print(name, email)
+    return redirect(url_for("home"))</code></pre>
+                    </div>
+                    <div class="note"><code>request.form.get()</code> reads values submitted by a normal HTML form.
+                    </div>
+                </section>
+
+                <section id="database">
+                    <h2 class="section-title">8. PostgreSQL Database Setup</h2>
+                    <h3>Create database using pgAdmin</h3>
+                    <ol>
+                        <li>Install PostgreSQL and open pgAdmin.</li>
+                        <li>Create a database named <code>flask_students</code>.</li>
+                        <li>Remember the username, password, host and port.</li>
+                    </ol>
+                    <h3>Connection URL format</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>postgresql://USERNAME:PASSWORD@HOST:PORT/DATABASE_NAME</code></pre>
+                    </div>
+                    <p>Local example:</p>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>postgresql://postgres:your_password@localhost:5432/flask_students</code></pre>
+                    </div>
+                    <h3>Create a .env file</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>DATABASE_URL=postgresql://postgres:your_password@localhost:5432/flask_students
+SECRET_KEY=replace-with-a-long-random-secret</code></pre>
+                    </div>
+                    <div class="warning"><strong>Security:</strong> Never upload <code>.env</code> to GitHub. Add it to
+                        <code>.gitignore</code>.</div>
+                </section>
+
+                <section id="sqlalchemy">
+                    <h2 class="section-title">9. Flask-SQLAlchemy and Database Models</h2>
+                    <p>An ORM lets you work with database tables using Python classes.</p>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>import os
+from dotenv import load_dotenv
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+
+load_dotenv()
+
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    course = db.Column(db.String(100), nullable=False)
+
+    def __repr__(self):
+        return f"&lt;Student {self.name}&gt;"</code></pre>
+                    </div>
+                    <h3>Create tables</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>with app.app_context():
+    db.create_all()</code></pre>
+                    </div>
+                </section>
+
+                <section id="crud">
+                    <h2 class="section-title">10. CRUD Operations</h2>
+                    <h3>Create</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>student = Student(name="Rahul", email="rahul@example.com", course="Flask")
+db.session.add(student)
+db.session.commit()</code></pre>
+                    </div>
+                    <h3>Read</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>students = Student.query.order_by(Student.id.desc()).all()
+one_student = db.session.get(Student, 1)</code></pre>
+                    </div>
+                    <h3>Update</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>student = db.session.get(Student, student_id)
+student.name = "Updated Name"
+db.session.commit()</code></pre>
+                    </div>
+                    <h3>Delete</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>student = db.session.get(Student, student_id)
+db.session.delete(student)
+db.session.commit()</code></pre>
+                    </div>
+                </section>
+
+                <section id="project">
+                    <h2 class="section-title">11. Complete Basic Student Management Project</h2>
+                    <h3>Project structure</h3>
+                    <div class="tree">flask_student_app/
+                        ├── app.py
+                        ├── requirements.txt
+                        ├── .env
+                        ├── .gitignore
+                        ├── templates/
+                        │ ├── base.html
+                        │ ├── index.html
+                        │ └── edit.html
+                        └── static/
+                        ├── css/
+                        │ └── style.css
+                        └── js/
+                        └── script.js</div>
+
+                    <h3>app.py</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>import os
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.exc import IntegrityError
+
+load_dotenv()
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "development-secret")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+db = SQLAlchemy(app)
+
+
+class Student(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    course = db.Column(db.String(100), nullable=False)
+
+
+@app.route("/")
+def home():
+    students = Student.query.order_by(Student.id.desc()).all()
+    return render_template("index.html", students=students)
+
+
+@app.route("/students/add", methods=["POST"])
+def add_student():
+    name = request.form.get("name", "").strip()
+    email = request.form.get("email", "").strip().lower()
+    course = request.form.get("course", "").strip()
+
+    if not name or not email or not course:
+        flash("All fields are required.", "error")
+        return redirect(url_for("home"))
+
+    student = Student(name=name, email=email, course=course)
+
+    try:
+        db.session.add(student)
+        db.session.commit()
+        flash("Student added successfully.", "success")
+    except IntegrityError:
+        db.session.rollback()
+        flash("This email already exists.", "error")
+
+    return redirect(url_for("home"))
+
+
+@app.route("/students/&lt;int:student_id&gt;/edit", methods=["GET", "POST"])
+def edit_student(student_id):
+    student = db.get_or_404(Student, student_id)
+
+    if request.method == "POST":
+        student.name = request.form.get("name", "").strip()
+        student.email = request.form.get("email", "").strip().lower()
+        student.course = request.form.get("course", "").strip()
+
+        try:
+            db.session.commit()
+            flash("Student updated successfully.", "success")
+            return redirect(url_for("home"))
+        except IntegrityError:
+            db.session.rollback()
+            flash("That email is already being used.", "error")
+
+    return render_template("edit.html", student=student)
+
+
+@app.route("/students/&lt;int:student_id&gt;/delete", methods=["POST"])
+def delete_student(student_id):
+    student = db.get_or_404(Student, student_id)
+    db.session.delete(student)
+    db.session.commit()
+    flash("Student deleted successfully.", "success")
+    return redirect(url_for("home"))
+
+
+with app.app_context():
+    db.create_all()
+
+
+if __name__ == "__main__":
+    app.run(debug=True)</code></pre>
+                    </div>
+
+                    <h3>templates/base.html</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+    &lt;meta charset="UTF-8"&gt;
+    &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+    &lt;title&gt;{% block title %}Student Manager{% endblock %}&lt;/title&gt;
+    &lt;link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"&gt;
+    &lt;script src="{{ url_for('static', filename='js/script.js') }}" defer&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;nav&gt;
+        &lt;div class="nav-inner"&gt;
+            &lt;a href="{{ url_for('home') }}" class="logo"&gt;Student Manager&lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/nav&gt;
+
+    &lt;main class="container"&gt;
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                &lt;div class="alert {{ category }}"&gt;{{ message }}&lt;/div&gt;
+            {% endfor %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    &lt;/main&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+                    </div>
+
+                    <h3>templates/index.html</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>{% extends "base.html" %}
+
+{% block title %}Students{% endblock %}
+
+{% block content %}
+&lt;section class="panel"&gt;
+    &lt;h1&gt;Add Student&lt;/h1&gt;
+    &lt;form action="{{ url_for('add_student') }}" method="POST" class="student-form"&gt;
+        &lt;input type="text" name="name" placeholder="Full name" required&gt;
+        &lt;input type="email" name="email" placeholder="Email address" required&gt;
+        &lt;input type="text" name="course" placeholder="Course" required&gt;
+        &lt;button type="submit"&gt;Add Student&lt;/button&gt;
+    &lt;/form&gt;
+&lt;/section&gt;
+
+&lt;section class="panel"&gt;
+    &lt;h2&gt;All Students&lt;/h2&gt;
+
+    {% if students %}
+    &lt;div class="table-wrap"&gt;
+        &lt;table&gt;
+            &lt;thead&gt;
+                &lt;tr&gt;
+                    &lt;th&gt;ID&lt;/th&gt;
+                    &lt;th&gt;Name&lt;/th&gt;
+                    &lt;th&gt;Email&lt;/th&gt;
+                    &lt;th&gt;Course&lt;/th&gt;
+                    &lt;th&gt;Actions&lt;/th&gt;
+                &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+                {% for student in students %}
+                &lt;tr&gt;
+                    &lt;td&gt;{{ student.id }}&lt;/td&gt;
+                    &lt;td&gt;{{ student.name }}&lt;/td&gt;
+                    &lt;td&gt;{{ student.email }}&lt;/td&gt;
+                    &lt;td&gt;{{ student.course }}&lt;/td&gt;
+                    &lt;td class="actions"&gt;
+                        &lt;a class="edit" href="{{ url_for('edit_student', student_id=student.id) }}"&gt;Edit&lt;/a&gt;
+                        &lt;form action="{{ url_for('delete_student', student_id=student.id) }}" method="POST" class="delete-form"&gt;
+                            &lt;button class="delete" type="submit"&gt;Delete&lt;/button&gt;
+                        &lt;/form&gt;
+                    &lt;/td&gt;
+                &lt;/tr&gt;
+                {% endfor %}
+            &lt;/tbody&gt;
+        &lt;/table&gt;
+    &lt;/div&gt;
+    {% else %}
+        &lt;p&gt;No students added yet.&lt;/p&gt;
+    {% endif %}
+&lt;/section&gt;
+{% endblock %}</code></pre>
+                    </div>
+
+                    <h3>templates/edit.html</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>{% extends "base.html" %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+&lt;section class="panel narrow"&gt;
+    &lt;h1&gt;Edit Student&lt;/h1&gt;
+    &lt;form method="POST" class="student-form vertical"&gt;
+        &lt;input type="text" name="name" value="{{ student.name }}" required&gt;
+        &lt;input type="email" name="email" value="{{ student.email }}" required&gt;
+        &lt;input type="text" name="course" value="{{ student.course }}" required&gt;
+        &lt;button type="submit"&gt;Save Changes&lt;/button&gt;
+        &lt;a class="cancel" href="{{ url_for('home') }}"&gt;Cancel&lt;/a&gt;
+    &lt;/form&gt;
+&lt;/section&gt;
+{% endblock %}</code></pre>
+                    </div>
+
+                    <h3>static/css/style.css</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f6fb;
+    color: #1f2937;
+}
+
+nav { background: #101827; padding: 18px 0; }
+.nav-inner, .container { width: min(1050px, 92%); margin: auto; }
+.logo { color: white; text-decoration: none; font-size: 1.25rem; font-weight: bold; }
+.container { padding: 35px 0; }
+.panel { background: white; padding: 25px; border-radius: 14px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(20,35,60,.08); }
+.narrow { max-width: 620px; margin-inline: auto; }
+.student-form { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
+.student-form.vertical { grid-template-columns: 1fr; }
+input { width: 100%; padding: 12px; border: 1px solid #ccd5e1; border-radius: 8px; }
+button, .edit, .cancel { border: 0; padding: 11px 15px; border-radius: 8px; cursor: pointer; text-decoration: none; font-weight: bold; }
+button { background: #2563eb; color: white; }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border-bottom: 1px solid #e5e7eb; padding: 13px; text-align: left; }
+.actions { display: flex; gap: 8px; align-items: center; }
+.edit { background: #fbbf24; color: #111827; }
+.delete { background: #dc2626; padding: 8px 11px; }
+.delete-form { display: inline; }
+.cancel { color: #374151; text-align: center; background: #e5e7eb; }
+.alert { padding: 12px 14px; margin-bottom: 16px; border-radius: 8px; }
+.alert.success { background: #dcfce7; color: #166534; }
+.alert.error { background: #fee2e2; color: #991b1b; }
+
+@media (max-width: 760px) {
+    .student-form { grid-template-columns: 1fr; }
+}</code></pre>
+                    </div>
+
+                    <h3>static/js/script.js</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>document.querySelectorAll(".delete-form").forEach((form) =&gt; {
+    form.addEventListener("submit", (event) =&gt; {
+        const confirmed = confirm("Are you sure you want to delete this student?");
+        if (!confirmed) event.preventDefault();
+    });
+});</code></pre>
+                    </div>
+
+                    <h3>requirements.txt</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>Flask
+Flask-SQLAlchemy
+psycopg2-binary
+python-dotenv</code></pre>
+                    </div>
+
+                    <h3>.gitignore</h3>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>venv/
+__pycache__/
+.env
+*.pyc
+.vscode/</code></pre>
+                    </div>
+                </section>
+
+                <section id="run">
+                    <h2 class="section-title">12. How to Run the Complete Project</h2>
+                    <ol class="checklist">
+                        <li>Create the database <code>flask_students</code> in PostgreSQL.</li>
+                        <li>Add the correct connection URL to <code>.env</code>.</li>
+                        <li>Activate the virtual environment.</li>
+                        <li>Install dependencies.</li>
+                        <li>Start Flask.</li>
+                    </ol>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>pip install -r requirements.txt
+python app.py</code></pre>
+                    </div>
+                    <p>Open:</p>
+                    <div class="code-wrap"><button class="copy-btn">Copy</button>
+                        <pre><code>http://127.0.0.1:5000</code></pre>
+                    </div>
+                </section>
+
+                <section id="errors">
+                    <h2 class="section-title">13. Common Errors and Fixes</h2>
+                    <table>
+                        <tr>
+                            <th>Error</th>
+                            <th>Likely fix</th>
+                        </tr>
+                        <tr>
+                            <td><code>ModuleNotFoundError: flask</code></td>
+                            <td>Activate the virtual environment and run <code>pip install Flask</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>connection refused</code></td>
+                            <td>Start PostgreSQL and check host, port, username and password.</td>
+                        </tr>
+                        <tr>
+                            <td><code>password authentication failed</code></td>
+                            <td>Correct the PostgreSQL password in <code>DATABASE_URL</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><code>TemplateNotFound</code></td>
+                            <td>Place HTML files inside the exact folder name <code>templates</code>.</td>
+                        </tr>
+                        <tr>
+                            <td>CSS is not loading</td>
+                            <td>Place CSS inside <code>static/css</code> and use <code>url_for('static', ...)</code>.
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Duplicate email error</td>
+                            <td>Handle <code>IntegrityError</code>, rollback the session, and show a message.</td>
+                        </tr>
+                        <tr>
+                            <td><code>Working outside of application context</code></td>
+                            <td>Run database setup code inside <code>with app.app_context():</code>.</td>
+                        </tr>
+                    </table>
+                </section>
+
+                <section id="practice">
+                    <h2 class="section-title">14. Practice Tasks</h2>
+                    <ol class="checklist">
+                        <li>Add a phone number column to the Student model.</li>
+                        <li>Add a search box to search students by name.</li>
+                        <li>Add course filtering.</li>
+                        <li>Add created date and display it in the table.</li>
+                        <li>Create separate pages for Home, About and Contact.</li>
+                        <li>Add login and registration using Flask-Login.</li>
+                        <li>Deploy with an external PostgreSQL database.</li>
+                    </ol>
+                    <div class="success"><strong>Learning sequence:</strong> Routes → Templates → Forms → Database model
+                        → CRUD → Validation → Authentication → Deployment.</div>
+                </section>
+            </div>
+
+            <footer class="footer">
+                Developed by Sufal Basak || Self Learning NoteBook
+
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        const themeBtn = document.getElementById('themeBtn');
+        const savedTheme = localStorage.getItem('study-theme');
+        if (savedTheme === 'light') document.body.classList.add('light');
+
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('pageLoader');
+            if (!loader) return;
+
+            setTimeout(() => {
+                loader.classList.add('is-hidden');
+                document.body.classList.remove('is-loading');
+            }, 450);
+        });
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light');
+            localStorage.setItem('study-theme', document.body.classList.contains('light') ? 'light' : 'dark');
+        });
+
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const text = btn.nextElementSibling.innerText;
+                await navigator.clipboard.writeText(text);
+                const old = btn.textContent;
+                btn.textContent = 'Copied';
+                setTimeout(() => btn.textContent = old, 1200);
+            });
+        });
+
+        const sections = [...document.querySelectorAll('section[id]')];
+        const links = [...document.querySelectorAll('#nav a')];
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + entry.target.id));
+                }
+            });
+        }, { rootMargin: '-20% 0px -70% 0px' });
+        sections.forEach(section => observer.observe(section));
+    </script>
+</body>
+
+</html>
